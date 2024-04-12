@@ -103,6 +103,12 @@ class ImageCacheExtension extends Minz_Extension {
 				$newSrcSet = preg_replace_callback('/(?:([^\s,]+)(\s*(?:\s+\d+[wx])(?:,\s*)?))/', 'self::uploadSrcSetUris', $img->getAttribute('srcset'));
 			}
 		}
+		$videos = $doc->getElementsByTagName('video');
+		foreach($videos as $video){
+			if ($video->hasAttribute('src')) {
+                self::post_request($video->getAttribute('src'), FreshRSS_Context::$user_conf->image_cache_post_url);
+			}
+		}
 	}
 
 	public static function swapUris($content) {
@@ -121,6 +127,13 @@ class ImageCacheExtension extends Minz_Extension {
 			if ($img->hasAttribute('srcset')) {
 				$newSrcSet = preg_replace_callback('/(?:([^\s,]+)(\s*(?:\s+\d+[wx])(?:,\s*)?))/', 'self::getSrcSetUris', $img->getAttribute('srcset'));
 				$img->setAttribute('srcset', $newSrcSet);
+			}
+		}
+		$videos = $doc->getElementsByTagName('video');
+		foreach($videos as $video){
+			if ($video->hasAttribute('src')) {
+				$newSrc = self::getCacheImageUri($video->getAttribute('src'));
+				$video->setAttribute('src', $newSrc);
 			}
 		}
 		return $doc->saveHTML();
